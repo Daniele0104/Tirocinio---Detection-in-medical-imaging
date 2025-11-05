@@ -66,12 +66,12 @@ def main():
             "--seed", "0",
             "--device", "cuda:0",
             "--output-dir", fold_dir,
-            "-u", f"dataset.train.ann={train_json}",
-            "-u", f"dataset.val.ann={val_json}",
+            "-u", f"dataset.train.ann={train_json}", f"dataset.val.ann={val_json}",
+
         ]
 
         print(f"\n===Training per fold {fold}: {' '.join(cmd)}===\n")
-        result = subprocess.run(cmd, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True)
 
         log_path = os.path.join(fold_dir, "training_log.txt")
         with open(log_path, "w",  encoding="utf-8") as f:
