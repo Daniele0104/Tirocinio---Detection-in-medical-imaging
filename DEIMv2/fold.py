@@ -105,7 +105,7 @@ def main():
     }
 
     save_coco_annotations(metadata, f"C:/Tirocinio/DEIMv2/folds_k{k}/metadata.json")
-    print("\n✅ Tutti i fold completati correttamente!")
+    print("\nTutti i fold completati correttamente!")
 
 if __name__ == "__main__":
     main()

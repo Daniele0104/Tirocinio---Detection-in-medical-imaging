@@ -1,8 +1,0 @@
-IoU thresholds: 0.0035714285714285587, recall steps: 101, classes: 6
-
-Class 01: TP=0.00, FP=0.00, FN=10.00, Precision=0.000, Recall=0.000, F1=0.000
-Class 02: TP=0.00, FP=0.00, FN=101.00, Precision=0.000, Recall=0.000, F1=0.000
-Class 03: TP=0.00, FP=0.00, FN=6.00, Precision=0.000, Recall=0.000, F1=0.000
-Class 04: TP=0.00, FP=0.00, FN=4.00, Precision=0.000, Recall=0.000, F1=0.000
-Class 05: TP=0.00, FP=0.00, FN=3.00, Precision=0.000, Recall=0.000, F1=0.000
-Class 06: TP=0.00, FP=0.01, FN=1.00, Precision=0.202, Recall=0.004, F1=0.007

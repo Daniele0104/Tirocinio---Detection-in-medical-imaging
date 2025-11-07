@@ -1,0 +1,10 @@
+{
+  "metriche_per_classe": {
+    "difficult": 0.2292457775189282,
+    "gametocyte": 0.05213268579605216,
+    "red blood cell": 0.7276639460909277,
+    "ring": 0.09514550012693593,
+    "schizont": 0.0,
+    "trophozoite": 0.29449781185015006
+  }
+}

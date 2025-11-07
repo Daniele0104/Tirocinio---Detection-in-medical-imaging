@@ -65,8 +65,6 @@ class DetSolver(BaseSolver):
                 top1 = test_stats[k][0]
                 print(f'best_stat: {best_stat}')
 
-        
-
         best_stat_print = best_stat.copy()
         start_time = time.time()
         start_epoch = self.last_epoch + 1
@@ -104,7 +102,7 @@ class DetSolver(BaseSolver):
                     self.lr_scheduler.step()
 
             self.last_epoch += 1
-            """
+
             if self.output_dir and epoch < self.train_dataloader.collate_fn.stop_epoch:
                 checkpoint_paths = [self.output_dir / 'last.pth']
                 # extra checkpoint before LR drop and every 100 epochs
@@ -112,7 +110,7 @@ class DetSolver(BaseSolver):
                     checkpoint_paths.append(self.output_dir / f'checkpoint{epoch:04}.pth')
                 for checkpoint_path in checkpoint_paths:
                     dist_utils.save_on_master(self.state_dict(), checkpoint_path)
-            """
+
             module = self.ema.module if self.ema else self.model
             test_stats, coco_evaluator = evaluate(
                 module,

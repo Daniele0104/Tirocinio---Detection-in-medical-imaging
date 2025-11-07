@@ -255,6 +255,8 @@ class BaseSolver(object):
     def val(self):
         raise NotImplementedError('')
 
+         
+
 # obj365_classes = [
 #         'Person', 'Sneakers', 'Chair', 'Other Shoes', 'Hat', 'Car', 'Lamp', 'Glasses',
 #         'Bottle', 'Desk', 'Cup', 'Street Lights', 'Cabinet/shelf', 'Handbag/Satchel',

@@ -1,95 +1,123 @@
-import os
+import torch
+import json
 import numpy as np
-from sklearn.metrics import (
-    confusion_matrix,
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    balanced_accuracy_score,
-    matthews_corrcoef
-)
+import matplotlib.pyplot as plt
+from pathlib import Path
+import os # Aggiunto per compatibilità
 
-# === CONFIG ===
-BASE_DIR = "C:/Tirocinio/DEIMv2/folds_k3"
-OUTPUT_DIR = os.path.join(BASE_DIR, "risultati")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+def analyze_evaluation(eval_file_path, json_file_path, output_dir):
+    """
+    Carica i risultati di una valutazione COCO (eval.pth) e salva:
+    1. Un JSON con l'AP per classe.
+    2. La curva Precision-Recall per classe.
+    """
+    
+    eval_file = Path(eval_file_path)
+    json_file = Path(json_file_path)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True) # Assicura che la cartella esista
 
-def parse_metrics_summary(path):
-    """Legge TP, FP, FN per classe dal file metrics_summary.txt"""
-    TP, FP, FN = [], [], []
-    with open(path, "r") as f:
-        for line in f:
-            if "Class" in line and "TP=" in line:
-                parts = line.strip().split(",")
-                tp = float(parts[0].split("TP=")[1])
-                fp = float(parts[1].split("FP=")[1])
-                fn = float(parts[2].split("FN=")[1])
-                TP.append(tp)
-                FP.append(fp)
-                FN.append(fn)
-    return np.array(TP), np.array(FP), np.array(FN)
+    if not eval_file.exists():
+        print(f"Errore: File di valutazione non trovato in:\n{eval_file}")
+        return
+    if not json_file.exists():
+        print(f"Errore: File JSON di validazione non trovato in:\n{json_file}")
+        return
 
-def compute_metrics(TP, FP, FN):
-    """Calcola metriche per ogni classe"""
-    eps = 1e-10
-    precision = TP / (TP + FP + eps)
-    recall = TP / (TP + FN + eps)
-    specificity = TP / (TP + FP + FN + eps)  # proxy, in OD non c'è TN diretto
-    f1 = 2 * precision * recall / (precision + recall + eps)
-    accuracy = TP / (TP + FP + FN + eps)
-    balanced_acc = (recall + specificity) / 2
+    print(f"Caricamento file di valutazione: {eval_file}")
+    print(f"Caricamento file JSON: {json_file}")
+    
+    # --- 1. Carica i file ---
+    # Ignora l'avviso di FutureWarning
+    eval_results = torch.load(eval_file, map_location='cpu', weights_only=False)
+    
+    with open(json_file, 'r') as f:
+        coco_data = json.load(f)
+    
+    categories = {cat['id']: cat['name'] for cat in coco_data['categories']}
+    
+    # --- CORREZIONE IMPORTANTE ---
+    # pycocotools mappa gli ID delle categorie *ordinati* [1, 2, 3...] 
+    # agli indici dell'array [0, 1, 2...]. Dobbiamo fare lo stesso.
+    sorted_category_ids = sorted(categories.keys())
+    class_id_map = {idx: cat_id for idx, cat_id in enumerate(sorted_category_ids)}
 
-    return {
-        "precision": precision,
-        "recall": recall,
-        "specificity": specificity,
-        "f1": f1,
-        "accuracy": accuracy,
-        "balanced_accuracy": balanced_acc
+    # --- MODIFICA: Prepara il report JSON ---
+    report = {
+        'metriche_per_classe': {}
     }
 
-def aggregate_global_metrics(per_class_metrics):
-    """Aggrega globalmente in modo macro, micro e weighted"""
-    metrics = {}
-    weights = per_class_metrics["TP"] + per_class_metrics["FN"]
-    weights = weights / np.sum(weights)  # frequenze relative
+    print("\n---Average Precision (AP) per Classe ---")
+    
+    precision_data = eval_results['precision']
+    # Calcola AP (media su 10 IoU e 101 Recall)
+    # Prendiamo A=0 (all areas) e M=2 (maxDets=100)
+    ap_per_class = precision_data[:, :, :, 0, 2].mean(axis=(0, 1))
 
-    for key, values in per_class_metrics.items():
-        if key in ["TP", "FP", "FN"]:
-            continue
-        vals = np.array(values)
-        metrics[f"{key}_macro"] = np.nanmean(vals)
-        metrics[f"{key}_micro"] = np.nansum(vals * weights)
-        metrics[f"{key}_weighted"] = np.nansum(vals * weights)
+    for class_index, ap in enumerate(ap_per_class):
+        class_id = class_id_map.get(class_index)
+        if class_id is None:
+             print(f"Attenzione: Indice classe {class_index} non trovato in class_id_map.")
+             continue
+        
+        class_name = categories.get(class_id, f'Classe ID {class_id}')
+        ap_value = ap.item() # Converte in float
+        
+        print(f"  AP [{class_name}]: {ap_value:.4f}")
+        
+        # --- MODIFICA: Salva il valore nel report ---
+        report['AP_per_classe'][class_name] = ap_value
+    
+    # --- MODIFICA: Salva il Report JSON ---
+    json_report_path = output_dir / "metriche_per_classe.json"
+    with open(json_report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    print(f"\n✓ Report AP per classe salvato in: {json_report_path}")
 
-    return metrics
+    # --- 2. Salva la Curva P-R ---
+    print("\nSalvataggio curva P-R...")
+    try:
+        fig, ax = plt.subplots(figsize=(10, 8))
+        pr_curve_data = precision_data[0, :, :, 0, 2] # Curva a IoU=0.50
+        recall_steps = np.arange(0, 1.01, 0.01)
+        
+        for class_index in range(pr_curve_data.shape[1]):
+            class_id = class_id_map.get(class_index)
+            if class_id is None:
+                continue
+            
+            class_name = categories.get(class_id, f'Classe ID {class_id}')
+            class_pr = pr_curve_data[:, class_index]
+            ap_50 = class_pr.mean()
+            
+            if ap_50 > 0.001:
+                ax.plot(recall_steps, class_pr, label=f'{class_name} (AP@.50 = {ap_50:.3f})')
+        
+        ax.set_title("Curve Precision-Recall (per Classe) @ IoU=0.50")
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        ax.legend(loc='lower left', fontsize='small')
+        ax.grid(True)
+        ax.set_ylim(0, 1.05)
+        ax.set_xlim(0, 1.0)
+        
+        fig_path = output_dir / "precision_recall_curve_per_classe.png"
+        fig.savefig(fig_path)
+        print(f"✓ Curva P-R salvata in: {fig_path}")
+        plt.close(fig)
 
-# === MAIN ===
-all_fold_metrics = []
+    except Exception as e:
+        print(f"Errore durante la generazione della curva P-R: {e}")
 
-for fold in range(3):
-    path = os.path.join(BASE_DIR, f"fold_{fold}", "test_results", "metrics_summary.txt")
-    if not os.path.exists(path):
-        print(f"❌ Manca {path}")
-        continue
-
-    TP, FP, FN = parse_metrics_summary(path)
-    m = compute_metrics(TP, FP, FN)
-    m["TP"], m["FP"], m["FN"] = TP, FP, FN
-    agg = aggregate_global_metrics(m)
-    all_fold_metrics.append(agg)
-
-# === MEDIA + DEVIAZIONE STANDARD ===
-keys = all_fold_metrics[0].keys()
-mean_metrics = {k: np.mean([f[k] for f in all_fold_metrics]) for k in keys}
-std_metrics = {k: np.std([f[k] for f in all_fold_metrics]) for k in keys}
-
-# === SALVA RISULTATI ===
-output_file = os.path.join(OUTPUT_DIR, "global_metrics.txt")
-with open(output_file, "w", encoding="utf-8") as f:
-    f.write("=== METRICHE GLOBALI SU K-FOLD ===\n\n")
-    for k in keys:
-        f.write(f"{k:25s}: {mean_metrics[k]:.4f} ± {std_metrics[k]:.4f}\n")
-
-print(f"\n✅ Metriche globali salvate in: {output_file}")
+if __name__ == "__main__":
+    
+    # --- Percorsi dei file ---
+    # Questo ora punta al fold 2, come nel tuo script
+    
+    EVAL_FILE_PATH = r'folds_k3/fold_1/test_results/eval.pth'
+    JSON_FILE_PATH = r'folds_k3/fold_1/val.json'
+    OUTPUT_DIR_PATH = r'folds_k3/fold_1/test_results'
+    
+    # -------------------------
+    
+    analyze_evaluation(EVAL_FILE_PATH, JSON_FILE_PATH, OUTPUT_DIR_PATH)
