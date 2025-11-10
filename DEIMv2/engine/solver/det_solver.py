@@ -103,13 +103,13 @@ class DetSolver(BaseSolver):
 
             self.last_epoch += 1
 
-            if self.output_dir and epoch < self.train_dataloader.collate_fn.stop_epoch:
-                checkpoint_paths = [self.output_dir / 'last.pth']
+            #if self.output_dir and epoch < self.train_dataloader.collate_fn.stop_epoch:
+            #    checkpoint_paths = [self.output_dir / 'last.pth']
                 # extra checkpoint before LR drop and every 100 epochs
-                if (epoch + 1) % args.checkpoint_freq == 0:
-                    checkpoint_paths.append(self.output_dir / f'checkpoint{epoch:04}.pth')
-                for checkpoint_path in checkpoint_paths:
-                    dist_utils.save_on_master(self.state_dict(), checkpoint_path)
+            #    if (epoch + 1) % args.checkpoint_freq == 0:
+            #        checkpoint_paths.append(self.output_dir / f'checkpoint{epoch:04}.pth')
+            #    for checkpoint_path in checkpoint_paths:
+            #        dist_utils.save_on_master(self.state_dict(), checkpoint_path)
 
             module = self.ema.module if self.ema else self.model
             test_stats, coco_evaluator = evaluate(
