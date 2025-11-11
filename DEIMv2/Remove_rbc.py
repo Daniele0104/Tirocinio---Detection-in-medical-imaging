@@ -3,10 +3,10 @@ import json
 # --- CONFIGURAZIONE ---
 
 # 1. Inserisci il percorso del tuo file di annotazioni originale
-ORIGINAL_JSON_PATH = "dataset\\annotations\\trainval.json"
+ORIGINAL_JSON_PATH = "dataset\\annotations\\instances_test.json"
 
 # 2. Inserisci il nome del file che vuoi creare
-FILTERED_JSON_PATH = "dataset\\annotations\\trainval_no_rbc.json"
+FILTERED_JSON_PATH = "dataset\\annotations\\instances_test_no_rbc.json"
 
 # 3. Inserisci i nomi ESATTI delle classi che vuoi MANTENERE
 #    (tutte le altre verranno scartate)

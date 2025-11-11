@@ -97,8 +97,9 @@ if __name__ == "__main__":
     
     # Percorso file
     
-    EVAL_FILE_PATH = r'folds_k3/fold_0/test_results/eval.pth'
-    JSON_FILE_PATH = r'folds_k3/fold_0/val.json'
-    OUTPUT_DIR_PATH = r'folds_k3/fold_0/test_results'
+    EVAL_FILE_PATH = r'folds_k3/fold_0/test_results/true/eval.pth'
+    #JSON_FILE_PATH = r'folds_k3/fold_0/val.json'
+    JSON_FILE_PATH = r'dataset/annotations/instances_test_no_rbc.json'
+    OUTPUT_DIR_PATH = r'folds_k3/fold_0/test_results/true'
     
     analyze_evaluation(EVAL_FILE_PATH, JSON_FILE_PATH, OUTPUT_DIR_PATH)

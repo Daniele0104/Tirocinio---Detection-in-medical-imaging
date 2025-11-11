@@ -20,9 +20,9 @@ def save_coco_annotations(data, path):
 
 def main():
     k = 3
-    test_ann = "C:/Tirocinio/DEIMv2/dataset/annotations/instances_test_no_rbc.json"
+    test_ann = "C:/Tirocinio/DEIMv2/dataset/annotations/instances_test_only_parasites.json"
     test_img_folder = "C:/Tirocinio/DEIMv2/dataset/images/test"
-    ann_path = "C:/Tirocinio/DEIMv2/dataset/annotations/trainval_no_rbc.json"
+    ann_path = "C:/Tirocinio/DEIMv2/dataset/annotations/trainval_only_parasites.json"
     ann = load_coco_annotations(ann_path)
     images = ann["images"]
     anns = ann["annotations"]
@@ -47,7 +47,6 @@ def main():
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
     for fold, (train_idx, val_idx) in enumerate(skf.split(images, labels)):
-        
         print(f"\n=== FOLD {fold+1}/{k} ===")
 
         train_images = [images[i] for i in train_idx]
@@ -70,7 +69,7 @@ def main():
             "categories": ann["categories"]
         }
 
-        fold_dir = os.path.join(f"C:/Tirocinio/DEIMv2/folds_k{k}", f"fold_{fold}")
+        fold_dir = os.path.join(f"C:/Tirocinio/DEIMv2/folds_onlyP_k{k}", f"fold_{fold}")
         os.makedirs(fold_dir, exist_ok=True)
         train_json = os.path.join(fold_dir, "train.json")
         val_json = os.path.join(fold_dir, "val.json")
@@ -104,7 +103,7 @@ def main():
             "--test-only",
             "--device", "cuda:0",
             # --- MODIFICA CORRETTA ---
-            "-u", f"val_dataloader.dataset.ann_file={test_ann}", f"val_dataloader.dataset.img_folder={test_img_folder}",
+            "-u", f"val_dataloader.dataset.ann_file={test_ann}", f"val_dataloader.dataset.img_folder{test_img_folder}"
             "--resume", best_model,
             "--output-dir", test_results_dir
         ]
@@ -121,7 +120,7 @@ def main():
         "config_file": "C:/Tirocinio/DEIMv2/configs/deimv2/deimv2_hgnetv2_atto_coco.yml"
     }
 
-    save_coco_annotations(metadata, f"C:/Tirocinio/DEIMv2/folds_k{k}/metadata.json")
+    save_coco_annotations(metadata, f"C:/Tirocinio/DEIMv2/folds_onlyP_k{k}/metadata.json")
     print("\nTutti i fold completati correttamente!")
 
 if __name__ == "__main__":
