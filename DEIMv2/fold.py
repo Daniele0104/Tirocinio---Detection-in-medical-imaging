@@ -45,7 +45,7 @@ def main():
     images = valid_images # Usa solo immagini con etichette
 
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
-
+    
     for fold, (train_idx, val_idx) in enumerate(skf.split(images, labels)):
         
         print(f"\n=== FOLD {fold+1}/{k} ===")
@@ -94,7 +94,12 @@ def main():
 
         # TEST
         print(f"\nTest fold {fold}\n")
-        best_model = os.path.join(fold_dir, "best_stg2.pth")
+        best_model_stg2 = os.path.join(fold_dir, "best_stg2.pth")
+        best_model_stg1 = os.path.join(fold_dir, "best_stg1.pth")
+        if os.path.exists(best_model_stg2):
+            best_model=best_model_stg2
+        else:
+            best_model=best_model_stg1
         test_results_dir = os.path.join(fold_dir, "test_results")
         os.makedirs(test_results_dir, exist_ok=True)
 

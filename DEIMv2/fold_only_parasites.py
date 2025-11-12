@@ -93,7 +93,12 @@ def main():
 
         # TEST
         print(f"\nTest fold {fold}\n")
-        best_model = os.path.join(fold_dir, "best_stg2.pth")
+        best_model_stg2 = os.path.join(fold_dir, "best_stg2.pth")
+        best_model_stg1 = os.path.join(fold_dir, "best_stg1.pth")
+        if os.path.exists(best_model_stg2):
+            best_model=best_model_stg2
+        else:
+            best_model=best_model_stg1
         test_results_dir = os.path.join(fold_dir, "test_results")
         os.makedirs(test_results_dir, exist_ok=True)
 
@@ -103,7 +108,7 @@ def main():
             "--test-only",
             "--device", "cuda:0",
             # --- MODIFICA CORRETTA ---
-            "-u", f"val_dataloader.dataset.ann_file={test_ann}", f"val_dataloader.dataset.img_folder{test_img_folder}"
+            "-u", f"val_dataloader.dataset.ann_file={test_ann}", f"val_dataloader.dataset.img_folder={test_img_folder}",
             "--resume", best_model,
             "--output-dir", test_results_dir
         ]
