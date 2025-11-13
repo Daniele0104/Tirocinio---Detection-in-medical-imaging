@@ -22,7 +22,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from engine.core import YAMLConfig
 
 label_map = {
-    1: 'gametocyte', 2: 'ring', 3:'schizont', 4:'trophozoite'
+    #1: 'gametocyte', 2: 'ring', 3:'schizont', 4:'trophozoite'
+    1: 'parasite'
 }
 
 

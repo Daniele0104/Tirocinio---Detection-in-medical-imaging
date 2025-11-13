@@ -94,12 +94,25 @@ def analyze_evaluation(eval_file_path, json_file_path, output_dir):
         print(f"Errore durante la generazione della curva P-R: {e}")
 
 if __name__ == "__main__":
-    
+    k=0
+    print("=== ANALISI NO RBC ===")
     # Percorso file
-    
-    EVAL_FILE_PATH = r'folds_k3/fold_0/test_results/true/eval.pth'
-    #JSON_FILE_PATH = r'folds_k3/fold_0/val.json'
-    JSON_FILE_PATH = r'dataset/annotations/instances_test_no_rbc.json'
-    OUTPUT_DIR_PATH = r'folds_k3/fold_0/test_results/true'
-    
-    analyze_evaluation(EVAL_FILE_PATH, JSON_FILE_PATH, OUTPUT_DIR_PATH)
+    for k in range(3):
+
+        fold_name = f'fold_{k}'
+        EVAL_FILE_PATH = rf'folds_k3/{fold_name}/test_results/eval.pth'
+        JSON_FILE_PATH = rf'dataset/annotations/instances_test_no_rbc.json'
+        OUTPUT_DIR_PATH = rf'folds_k3/{fold_name}/test_results'
+        analyze_evaluation(EVAL_FILE_PATH, JSON_FILE_PATH, OUTPUT_DIR_PATH)
+
+    k=0
+
+    print("=== ANALISI CAT PARASITES ===")
+
+    for k in range(3):
+
+        fold_name = f'fold_{k}'
+        EVAL_FILE_PATH = rf'folds_onlyP_k3/{fold_name}/test_results/eval.pth'
+        JSON_FILE_PATH = rf'dataset/annotations/instances_test_only_parasites.json'
+        OUTPUT_DIR_PATH = rf'folds_onlyP_k3/{fold_name}/test_results'
+        analyze_evaluation(EVAL_FILE_PATH, JSON_FILE_PATH, OUTPUT_DIR_PATH)
