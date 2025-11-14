@@ -18,6 +18,8 @@ import torch.nn as nn
 import torchvision.transforms as T
 from PIL import Image, ImageDraw, ImageFont
 
+from torchvision.ops import nms
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from engine.core import YAMLConfig
 
@@ -78,7 +80,21 @@ def process_dataset(model, dataset_path, output_path, thrh=0.5, size=(640, 640),
         im_data = transforms(im_pil).unsqueeze(0).cuda()
         output = model(im_data, orig_size)
         labels, boxes, scores = output[0]['labels'], output[0]['boxes'], output[0]['scores']
+        """
+        keep_thresh = scores > thrh
+        labels = labels[keep_thresh]
+        boxes = boxes[keep_thresh]
+        scores = scores[keep_thresh]
 
+        # 2. Applichiamo NMS "Class-Agnostic" (ignora le classi, guarda solo i box sovrapposti)
+        if boxes.size(0) > 0:
+            # iou_threshold=0.45 significa: se si sovrappongono più del 45%, tieni il migliore
+            keep_nms = nms(boxes, scores, iou_threshold=0.45)
+            
+            labels = labels[keep_nms]
+            boxes = boxes[keep_nms]
+            scores = scores[keep_nms]
+        """ 
         # 绘制结果
         vis_image = draw(im_pil.copy(), labels, boxes, scores, thrh)
         save_path = os.path.join(output_path, f"vis_{os.path.basename(file_path)}")
