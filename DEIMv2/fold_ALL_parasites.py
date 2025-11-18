@@ -20,9 +20,9 @@ def save_coco_annotations(data, path):
 
 def main():
     k = 3
-    test_ann = "C:/Tirocinio/DEIMv2/dataset_prova/annotations/instances_test.json"
-    test_img_folder = "C:/Tirocinio/DEIMv2/dataset_prova/images/test"
-    ann_path = "C:/Tirocinio/DEIMv2/dataset_prova/annotations/trainval.json"
+    test_ann = "C:/Tirocinio/DEIMv2/dataset_ALL_parasites/annotations/instances_test.json"
+    test_img_folder = "C:/Tirocinio/DEIMv2/dataset_ALL_parasites/images/test"
+    ann_path = "C:/Tirocinio/DEIMv2/dataset_ALL_parasites/annotations/trainval.json"
     ann = load_coco_annotations(ann_path)
     images = ann["images"]
     anns = ann["annotations"]

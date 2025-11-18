@@ -51,11 +51,11 @@ DEIMTransformer:
 # Increase to search for the optimal ema
 epoches: 50 # 468 + 32
 
-warmup_iter: 500
+
 ## Our LR-Scheduler
-#warmup_iter: 1000
-#flat_epoch: 20   # 4 + epoch // 2, e.g., 40 = 4 + 72 / 2
-#no_aug_epoch: 10
+warmup_iter: 500
+#flat_epoch: 29   # 4 + epoch // 2, e.g., 40 = 4 + 72 / 2
+#no_aug_epoch: 8
 #lr_gamma: 0.5
 
 optimizer:
