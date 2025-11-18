@@ -2,11 +2,11 @@ import json
 import os
 
 # Percorsi file esistenti
-train_json = "C:/Tirocinio/DEIMv2/dataset/annotations/instances_train.json"
-val_json   = "C:/Tirocinio/DEIMv2/dataset/annotations/instances_val.json"
+train_json = "C:/Tirocinio/DEIMv2/dataset_prova/annotations/instances_train.json"
+val_json   = "C:/Tirocinio/DEIMv2/dataset_prova/annotations/instances_val.json"
 
 # Percorso output
-trainval_json = "C:/Tirocinio/DEIMv2/dataset/annotations/trainval.json"
+trainval_json = "C:/Tirocinio/DEIMv2/dataset_prova/annotations/trainval.json"
 
 # Carica train
 with open(train_json, "r") as f:
