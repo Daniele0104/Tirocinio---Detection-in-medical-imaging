@@ -53,7 +53,7 @@ epoches: 50 # 468 + 32
 
 
 ## Our LR-Scheduler
-warmup_iter: 500
+warmup_iter: 200
 #flat_epoch: 29   # 4 + epoch // 2, e.g., 40 = 4 + 72 / 2
 #no_aug_epoch: 8
 #lr_gamma: 0.5
@@ -106,7 +106,7 @@ train_dataloader:
     base_size_repeat: ~
 
 val_dataloader:
-  total_batch_size: 4
+  total_batch_size: 2
   dataset:
     transforms:
       ops:
